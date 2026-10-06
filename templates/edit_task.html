@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Task</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Edit Task ✏️</h1>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="title"
+            value="{{ task['title'] }}"
+            required
+        >
+
+        <textarea
+            name="description"
+            required
+        >{{ task['description'] }}</textarea>
+
+        <input
+            type="date"
+            name="due_date"
+            value="{{ task['due_date'] }}"
+            required
+        >
+
+        <button type="submit">
+            Update Task
+        </button>
+
+    </form>
+
+    <p>
+        <a href="/dashboard">← Back to Dashboard</a>
+    </p>
+
+</div>
+
+</body>
+</html>

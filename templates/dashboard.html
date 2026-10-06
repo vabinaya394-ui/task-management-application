@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <h1>Welcome, {{ name }} 👋</h1>
+
+    <a href="/logout">Logout</a>
+
+    <hr>
+
+    <h2>Add New Task</h2>
+
+    <div class="filters">
+    <button onclick="filterTasks('all')">All</button>
+    <button onclick="filterTasks('pending')">Pending</button>
+    <button onclick="filterTasks('completed')">Completed</button>
+</div>
+
+    <form action="/add_task" method="POST">
+
+        <input
+            type="text"
+            name="title"
+            placeholder="Task title"
+            required
+        >
+
+        <textarea
+            name="description"
+            placeholder="Task description"
+            required
+        ></textarea>
+
+        <input
+            type="date"
+            name="due_date"
+            required
+        >
+
+        <button type="submit">Add Task</button>
+
+    </form>
+
+    <hr>
+
+    <h2>Your Tasks</h2>
+
+    {% if tasks %}
+
+        {% for task in tasks %}
+
+        <div class="task" data-status="{{ task['status'] }}">
+
+            <h3>{{ task["title"] }}</h3>
+
+            <p>{{ task["description"] }}</p>
+
+            <p>Due Date: {{ task["due_date"] }}</p>
+
+            <p>Status: {{ task["status"] }}</p>
+
+            <a href="/edit_task/{{ task['id'] }}">
+    <button type="button">Edit ✏️</button>
+</a>
+
+<form action="/delete_task/{{ task['id'] }}" method="POST"
+      onsubmit="return confirm('Are you sure you want to delete this task?');">
+
+    <button type="submit">Delete 🗑️</button>
+
+</form>
+
+{% if task["status"] == "Pending" %}
+
+<form action="/complete_task/{{ task['id'] }}" method="POST">
+
+    <button type="submit">Mark as Completed ✅</button>
+
+</form>
+
+{% endif %}
+
+
+        </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No tasks yet.</p>
+
+    {% endif %}
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

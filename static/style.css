@@ -1,0 +1,94 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 350px;
+    margin: 100px auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px #ccc;
+    text-align: center;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    width: 95%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.dashboard {
+    width: 80%;
+    margin: 40px auto;
+}
+
+.task {
+    background: white;
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    box-shadow: 0 0 5px #ccc;
+}
+
+textarea {
+    width: 90%;
+    height: 100px;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 600px) {
+
+    .container {
+        width: 85%;
+        margin: 50px auto;
+        padding: 20px;
+    }
+
+    .dashboard {
+        width: 90%;
+        margin: 20px auto;
+    }
+
+    input,
+    textarea {
+        width: 90%;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    .task {
+        padding: 15px;
+    }
+
+    .task h3 {
+        font-size: 18px;
+    }
+
+    .filters button {
+        width: auto;
+        padding: 10px 15px;
+        margin: 5px;
+    }
+}
