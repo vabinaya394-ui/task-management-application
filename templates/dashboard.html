@@ -1,104 +1,248 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Task Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Task Management Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<div class="dashboard">
+<!-- Navigation Bar -->
+<nav class="navbar">
 
-    <h1>Welcome, {{ name }} 👋</h1>
+    <h2>Task Management Dashboard</h2>
 
-    <a href="/logout">Logout</a>
+    <div class="nav-links">
+        <a href="/dashboard" class="active">Home</a>
+        <a href="#task-list">My Tasks</a>
+        <a href="/logout">Logout</a>
+    </div>
 
-    <hr>
+</nav>
 
-    <h2>Add New Task</h2>
 
-    <div class="filters">
-    <button onclick="filterTasks('all')">All</button>
-    <button onclick="filterTasks('pending')">Pending</button>
-    <button onclick="filterTasks('completed')">Completed</button>
-</div>
+<main class="dashboard">
 
-    <form action="/add_task" method="POST">
+    <h2 class="welcome">Welcome, {{ name }}! 👋</h2>
 
-        <input
-            type="text"
-            name="title"
-            placeholder="Task title"
-            required
-        >
 
-        <textarea
-            name="description"
-            placeholder="Task description"
-            required
-        ></textarea>
+    <!-- Summary Cards -->
+    <section class="summary-cards">
 
-        <input
-            type="date"
-            name="due_date"
-            required
-        >
+        <div class="summary-card total-card">
+            <div class="card-icon">📋</div>
+            <div>
+                <h3>Total Tasks</h3>
+                <p>{{ total_tasks }}</p>
+            </div>
+        </div>
 
-        <button type="submit">Add Task</button>
+        <div class="summary-card completed-card">
+            <div class="card-icon">✓</div>
+            <div>
+                <h3>Completed Tasks</h3>
+                <p>{{ completed_tasks }}</p>
+            </div>
+        </div>
 
-    </form>
+        <div class="summary-card pending-card">
+            <div class="card-icon">⏳</div>
+            <div>
+                <h3>Pending Tasks</h3>
+                <p>{{ pending_tasks }}</p>
+            </div>
+        </div>
 
-    <hr>
+        <div class="summary-card overdue-card">
+            <div class="card-icon">⚠</div>
+            <div>
+                <h3>Overdue Tasks</h3>
+                <p>{{ overdue_tasks }}</p>
+            </div>
+        </div>
 
-    <h2>Your Tasks</h2>
+    </section>
 
-    {% if tasks %}
 
-        {% for task in tasks %}
+    <!-- Task List -->
+    <section class="task-section" id="task-list">
 
-        <div class="task" data-status="{{ task['status'] }}">
+        <div class="section-header">
+            <h2>Task List</h2>
 
-            <h3>{{ task["title"] }}</h3>
+            <button class="add-button"
+                    onclick="document.getElementById('add-task-form').scrollIntoView({behavior: 'smooth'})">
+                + Add New Task
+            </button>
+        </div>
 
-            <p>{{ task["description"] }}</p>
 
-            <p>Due Date: {{ task["due_date"] }}</p>
+        <!-- Add Task Form -->
+        <form action="/add_task"
+              method="POST"
+              id="add-task-form"
+              class="add-task-form">
 
-            <p>Status: {{ task["status"] }}</p>
+            <h3>Add New Task</h3>
 
-            <a href="/edit_task/{{ task['id'] }}">
-    <button type="button">Edit ✏️</button>
-</a>
+            <input type="text"
+                   name="title"
+                   placeholder="Task title"
+                   required>
 
-<form action="/delete_task/{{ task['id'] }}" method="POST"
-      onsubmit="return confirm('Are you sure you want to delete this task?');">
+            <textarea name="description"
+                      placeholder="Task description"
+                      required></textarea>
 
-    <button type="submit">Delete 🗑️</button>
+            <label for="due_date">Due Date</label>
 
-</form>
+            <input type="date"
+                   id="due_date"
+                   name="due_date"
+                   required>
 
-{% if task["status"] == "Pending" %}
+            <button type="submit" class="add-button">
+                Add Task
+            </button>
 
-<form action="/complete_task/{{ task['id'] }}" method="POST">
+        </form>
 
-    <button type="submit">Mark as Completed ✅</button>
 
-</form>
+        <!-- Filters -->
+        <div class="filter-section">
 
-{% endif %}
+            <label for="status-filter">Filter by Status:</label>
 
+            <select id="status-filter" onchange="filterTasks(this.value)">
+                <option value="all">All</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+            </select>
 
         </div>
 
-        {% endfor %}
 
-    {% else %}
+        <!-- Task Table -->
+        <div class="table-wrapper">
 
-        <p>No tasks yet.</p>
+            <table class="task-table">
 
-    {% endif %}
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Status</th>
+                        <th>Due Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-</div>
+                <tbody>
+
+                    {% for task in tasks %}
+
+                    {% set is_overdue = task["status"] == "Pending"
+                        and task["due_date"]
+                        and task["due_date"] < today %}
+
+                    <tr class="task-row"
+                        data-status="{{ 'overdue' if is_overdue else task['status']|lower }}">
+
+                        <td class="task-title">
+                            <strong>{{ task["title"] }}</strong>
+
+                            {% if task["description"] %}
+                            <p>{{ task["description"] }}</p>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if is_overdue %}
+
+                                <span class="status-badge overdue-badge">
+                                    Overdue
+                                </span>
+
+                            {% elif task["status"] == "Completed" %}
+
+                                <span class="status-badge completed-badge">
+                                    Completed
+                                </span>
+
+                            {% else %}
+
+                                <span class="status-badge pending-badge">
+                                    Pending
+                                </span>
+
+                            {% endif %}
+                        </td>
+
+                        <td>{{ task["due_date"] or "Not set" }}</td>
+
+                        <td>
+                            <div class="action-buttons">
+
+                                <a class="action-button edit-button"
+                                   href="/edit_task/{{ task['id'] }}">
+                                    Edit
+                                </a>
+
+                                <form action="/delete_task/{{ task['id'] }}"
+                                      method="POST"
+                                      onsubmit="return confirm('Delete this task?');">
+
+                                    <button type="submit"
+                                            class="action-button delete-button">
+                                        Delete
+                                    </button>
+
+                                </form>
+
+                                {% if task["status"] == "Pending" %}
+
+                                <form action="/complete_task/{{ task['id'] }}"
+                                      method="POST">
+
+                                    <button type="submit"
+                                            class="action-button complete-button">
+                                        Mark Complete
+                                    </button>
+
+                                </form>
+
+                                {% endif %}
+
+                            </div>
+                        </td>
+
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="4" class="empty-message">
+                            No tasks yet. Add your first task!
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 

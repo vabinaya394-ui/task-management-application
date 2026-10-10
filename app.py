@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session, jsonify
+from datetime import date
 from werkzeug.security import generate_password_hash, check_password_hash
 import sqlite3
 
@@ -230,9 +231,9 @@ def complete_task(task_id):
 
 
 # Dashboard
+# Dashboard
 @app.route("/dashboard")
 def dashboard():
-
     if "user_id" not in session:
         return redirect("/login")
 
@@ -245,10 +246,36 @@ def dashboard():
 
     conn.close()
 
+    today = date.today().isoformat()
+
+    total_tasks = len(tasks)
+    completed_tasks = sum(
+        1 for task in tasks
+        if task["status"] == "Completed"
+    )
+
+    pending_tasks = sum(
+        1 for task in tasks
+        if task["status"] == "Pending"
+        and (not task["due_date"] or task["due_date"] >= today)
+    )
+
+    overdue_tasks = sum(
+        1 for task in tasks
+        if task["status"] == "Pending"
+        and task["due_date"]
+        and task["due_date"] < today
+    )
+
     return render_template(
         "dashboard.html",
         tasks=tasks,
-        name=session["user_name"]
+        name=session["user_name"],
+        total_tasks=total_tasks,
+        completed_tasks=completed_tasks,
+        pending_tasks=pending_tasks,
+        overdue_tasks=overdue_tasks,
+        today=today
     )
 
 
